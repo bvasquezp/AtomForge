@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep-Material v2.0 | Dashboard</title>
+    <title>AtomForge | Deep-Material v2.0 Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #030712;
             --bg-card: rgba(17, 24, 39, 0.6);
-            --bg-card-hover: rgba(31, 41, 55, 0.8);
             --accent-primary: #00f2ff;
             --accent-glow: rgba(0, 242, 255, 0.4);
             --accent-secondary: #7000ff;
@@ -21,21 +20,17 @@
             --info-dim: rgba(59, 130, 246, 0.15);
             --danger: #ef4444;
             --danger-dim: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-dim: rgba(245, 158, 11, 0.15);
             --border-color: rgba(255, 255, 255, 0.08);
             --border-highlight: rgba(0, 242, 255, 0.3);
-            --glass-blur: 16px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Outfit', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
 
         body {
             background-color: var(--bg-color);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 15% 50%, rgba(112, 0, 255, 0.08), transparent 50%),
                 radial-gradient(circle at 85% 30%, rgba(0, 242, 255, 0.08), transparent 50%);
             color: var(--text-primary);
@@ -44,71 +39,41 @@
             line-height: 1.5;
         }
 
-        .dm-grid {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 24px;
-        }
+        .grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
 
-        .dm-card {
+        .card {
             background: var(--bg-card);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 2rem;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
-
-        .dm-card::before {
+        .card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 2px;
             background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .dm-card:hover::before {
-            opacity: 1;
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
-        .dm-title {
+        .title {
             font-size: 2.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--accent-primary));
+            background: linear-gradient(135deg, #fff, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.2rem;
             letter-spacing: -1px;
         }
+        .sub { font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; font-weight: 500; margin-bottom: 2rem; }
 
-        .dm-sub {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 500;
-            margin-bottom: 2rem;
-        }
-
-        .prog-wrap {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 100px;
-            height: 10px;
-            margin-bottom: 2.5rem;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            position: relative;
-        }
-
+        .prog-wrap { background: rgba(0,0,0,0.4); border-radius: 100px; height: 10px; margin-bottom: 2.5rem; border: 1px solid var(--border-color); overflow: hidden; }
         .prog-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
@@ -117,444 +82,238 @@
             transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
-
         .prog-fill::after {
             content: '';
-            position: absolute;
-            top: 0; right: 0; bottom: 0; left: 0;
+            position: absolute; top: 0; right: 0; bottom: 0; left: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             animation: shimmer 2s infinite;
         }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .phase {
-            margin-bottom: 2rem;
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-            from { opacity: 0; transform: translateY(10px); }
-        }
-        
-        /* Staggered animation */
+        .phase { margin-bottom: 2rem; animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .phase:nth-child(1) { animation-delay: 0.1s; }
-        .phase:nth-child(2) { animation-delay: 0.2s; }
-        .phase:nth-child(3) { animation-delay: 0.3s; }
-        .phase:nth-child(4) { animation-delay: 0.4s; }
-        .phase:nth-child(5) { animation-delay: 0.5s; }
-        .phase:nth-child(6) { animation-delay: 0.6s; }
+        .phase:nth-child(2) { animation-delay: 0.15s; }
+        .phase:nth-child(3) { animation-delay: 0.2s; }
+        .phase:nth-child(4) { animation-delay: 0.25s; }
+        .phase:nth-child(5) { animation-delay: 0.3s; }
+        .phase:nth-child(6) { animation-delay: 0.35s; }
+        .phase:nth-child(7) { animation-delay: 0.4s; }
 
-        .phase-hdr {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.8rem;
-            margin-bottom: 1rem;
-        }
+        .phase-hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1rem; }
+        .phase-name { font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; }
 
-        .phase-name {
-            font-size: 1.15rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            padding: 5px 12px;
-            border-radius: 100px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
+        .badge { font-size: 0.75rem; padding: 5px 12px; border-radius: 100px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .b-done { background: var(--success-dim); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
         .b-active { background: var(--info-dim); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.3); }
         .b-pending { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border-color); }
 
         .task {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid transparent;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 16px; border-radius: 14px; font-size: 0.95rem;
+            margin-bottom: 8px; background: rgba(255,255,255,0.02);
+            border: 1px solid transparent; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .task:hover {
-            background: rgba(255,255,255,0.05);
-            border-color: var(--border-highlight);
-            transform: translateX(4px);
-        }
-
-        .task.done {
-            color: var(--text-secondary);
-            text-decoration: line-through;
-            background: transparent;
-            opacity: 0.6;
-        }
-        
-        .task.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
-            border-left: 2px solid var(--info);
-        }
+        .task:hover { background: rgba(255,255,255,0.05); border-color: var(--border-highlight); transform: translateX(4px); }
+        .task.done { color: var(--text-secondary); text-decoration: line-through; background: transparent; opacity: 0.6; }
 
         .chk {
-            width: 20px; height: 20px;
-            border-radius: 6px;
+            width: 20px; height: 20px; border-radius: 6px;
             border: 2px solid rgba(255,255,255,0.3);
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
+            transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .chk.checked { background: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .chk.checked::after { content: '\2713'; color: #000; font-weight: 800; font-size: 13px; }
+
+        .block-tag {
+            font-size: 0.65rem; padding: 3px 8px; border-radius: 100px;
+            margin-left: auto; font-weight: 600; text-transform: uppercase;
+            background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
-        .chk.checked {
-            background: var(--success);
-            border-color: var(--success);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        .pulse {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--info); margin-right: 8px; box-shadow: 0 0 10px var(--info);
+            animation: pulse-dot 2s infinite;
         }
-        .chk.checked::after {
-            content: '✓'; color: #000; font-weight: 800; font-size: 13px;
-        }
+        @keyframes pulse-dot { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .chk.inprog {
-            border-color: var(--info);
-            background: var(--info-dim);
-            animation: pulse-border 1.5s infinite;
-        }
-        .chk.inprog::after {
-            content: '⋯'; color: var(--info); font-weight: 800; font-size: 12px; margin-top: -5px;
-        }
+        /* Tabla de resultados GCMC */
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.85rem; }
+        .results-table th, .results-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
+        .results-table th { color: var(--accent-primary); text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; font-weight: 600; }
+        .results-table tr:hover { background: rgba(255,255,255,0.03); }
+        .results-table .val-best { color: var(--success); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .results-table .val { font-family: 'JetBrains Mono', monospace; color: var(--text-secondary); }
 
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
-
-        .new-tag, .block-tag {
-            font-size: 0.65rem;
-            padding: 3px 8px;
-            border-radius: 100px;
-            margin-left: auto;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .new-tag { background: var(--success-dim); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .block-tag { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-
-        .metric-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
+        /* Sidebar */
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
         .metric-box {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 16px;
-            text-align: center;
-            transition: transform 0.2s ease;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 16px; text-align: center; transition: transform 0.2s ease;
         }
-        
-        .metric-box:hover {
-            transform: translateY(-3px);
-            border-color: var(--border-highlight);
-        }
-
-        .metric-val {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--accent-primary);
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .metric-lbl {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
+        .metric-box:hover { transform: translateY(-3px); border-color: var(--border-highlight); }
+        .metric-val { font-size: 1.8rem; font-weight: 800; color: var(--accent-primary); display: block; margin-bottom: 2px; }
+        .metric-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 
         .section-lbl {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #fff;
-            margin: 1.8rem 0 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px;
+            color: #fff; margin: 1.8rem 0 1rem; font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
         }
-        .section-lbl::after {
-            content: '';
-            height: 1px;
-            flex-grow: 1;
-            background: linear-gradient(90deg, var(--border-color), transparent);
-        }
+        .section-lbl::after { content: ''; height: 1px; flex-grow: 1; background: linear-gradient(90deg, var(--border-color), transparent); }
 
         .issues { list-style: none; }
         .issues li {
-            padding: 10px 14px;
-            background: var(--danger-dim);
-            border-left: 3px solid var(--danger);
-            border-radius: 0 12px 12px 0;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            transition: all 0.2s;
+            padding: 10px 14px; border-left: 3px solid var(--danger); border-radius: 0 12px 12px 0;
+            margin-bottom: 8px; font-size: 0.85rem; transition: all 0.2s;
         }
-        .issues li:hover { background: rgba(239, 68, 68, 0.2); }
-        .issues li.resolved {
-            background: var(--success-dim);
-            border-left-color: var(--success);
-            color: rgba(255,255,255,0.7);
-            text-decoration: line-through;
-        }
+        .issues li { background: var(--danger-dim); }
+        .issues li.resolved { background: var(--success-dim); border-left-color: var(--success); color: rgba(255,255,255,0.7); text-decoration: line-through; }
+        .issues li.mitigated { background: var(--warning-dim); border-left-color: var(--warning); }
         .issues li b { color: #fff; }
 
         .tag-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
         .tag {
-            font-size: 0.75rem;
-            background: rgba(0, 242, 255, 0.05);
-            color: var(--accent-primary);
-            padding: 6px 12px;
-            border-radius: 100px;
-            border: 1px solid rgba(0, 242, 255, 0.2);
-            font-weight: 500;
-            transition: all 0.2s;
+            font-size: 0.75rem; background: rgba(0, 242, 255, 0.05); color: var(--accent-primary);
+            padding: 6px 12px; border-radius: 100px; border: 1px solid rgba(0, 242, 255, 0.2);
+            font-weight: 500; transition: all 0.2s;
         }
-        .tag:hover {
-            background: rgba(0, 242, 255, 0.15);
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 10px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-
-        .pulse {
-            display: inline-block;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--info);
-            margin-right: 8px;
-            box-shadow: 0 0 10px var(--info);
-            animation: pulse-dot 2s infinite;
-        }
-        @keyframes pulse-dot {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        .tag:hover { background: rgba(0, 242, 255, 0.15); border-color: var(--accent-primary); box-shadow: 0 0 10px var(--accent-glow); transform: translateY(-2px); }
 
         .steps-list {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 2.2;
-            background: rgba(0,0,0,0.4);
-            padding: 16px 20px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary);
+            line-height: 2.2; background: rgba(0,0,0,0.4); padding: 16px 20px;
+            border-radius: 16px; border: 1px solid var(--border-color);
         }
         .steps-list span { color: var(--accent-primary); font-weight: 600; padding-right: 5px; }
-        
-        @media (max-width: 900px) {
-            .dm-grid { grid-template-columns: 1fr; }
-        }
+
+        .footer { font-size: 0.68rem; color: var(--text-secondary); text-align: center; margin-top: 20px; font-style: italic; }
+
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="dm-grid">
+<div class="grid">
     <main>
-        <div class="dm-card">
-            <h1 class="dm-title">Deep-Material v2.0</h1>
-            <p class="dm-sub">Riemannian Flow Matching — MOF Discovery</p>
-            
+        <div class="card">
+            <h1 class="title">AtomForge</h1>
+            <p class="sub">Riemannian Flow Matching para descubrimiento de MOFs</p>
+
             <div class="prog-wrap">
                 <div class="prog-fill" id="prog"></div>
             </div>
 
+            <!-- Fase 0 -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name">Fase 0 — Cimientos</span>
+                    <span class="phase-name">Fase 0 -- Cimientos y consolidacion</span>
                     <span class="badge b-done">Completada</span>
                 </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Arquitectura unificada y legacy eliminado
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>config.yaml centralizado + utilidades
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Pipeline PBC + dataset.py
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>CoREMOF 15,000 CIFs extraídos
-                </div>
+                <div class="task done"><div class="chk checked"></div>Arquitectura unificada, scripts legacy eliminados</div>
+                <div class="task done"><div class="chk checked"></div>config.yaml centralizado + utilidades (utils.py)</div>
+                <div class="task done"><div class="chk checked"></div>Pipeline de datos PBC con VoronoiNN (dataset.py)</div>
+                <div class="task done"><div class="chk checked"></div>CoREMOF 2019 extraido (15,000 CIFs)</div>
             </div>
 
+            <!-- Fase I -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name">Fase I — Fundamentos Físico-Matemáticos</span>
+                    <span class="phase-name">Fase I -- Fundamentos fisico-matematicos</span>
                     <span class="badge b-done">Completada</span>
                 </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Difeomorfismo Log-Euclidiano SPD(3) + Jitter adaptativo
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>GNN SE(3) equivariante (e3nn) + campo conservativo
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Sinkhorn loss con annealing t⁴ + Hutchinson divergence
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>CFM con dopri5/RK4 + Tensor de Virial
-                </div>
+                <div class="task done"><div class="chk checked"></div>LogEuclideanExp SPD(3) con backward Daleckii-Krein + Taylor</div>
+                <div class="task done"><div class="chk checked"></div>GNN SE(3) equivariante (e3nn) + campo conservativo v=-grad(Phi)</div>
+                <div class="task done"><div class="chk checked"></div>Sinkhorn OT per-graph con annealing t^4 + Hutchinson div</div>
+                <div class="task done"><div class="chk checked"></div>Tensor de Virial para dinamicas de celda unitaria</div>
             </div>
 
+            <!-- Fase 1.5 -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name">Fase I.5 — Optimización CPU/RAM</span>
+                    <span class="phase-name">Fase 1.5 -- Optimizacion CPU/RAM</span>
                     <span class="badge b-done">Completada</span>
                 </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Sinkhorn per-graph O(Nᵢ²) vs O(N_batch²)
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>OpenMP 8 hilos + DataLoader workers
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Parche λ_coords=5.0, λ_div=0.001
-                </div>
+                <div class="task done"><div class="chk checked"></div>Sinkhorn per-graph O(Ni^2) vs O(N_batch^2)</div>
+                <div class="task done"><div class="chk checked"></div>OpenMP 8 hilos + DataLoader 4 workers</div>
+                <div class="task done"><div class="chk checked"></div>Clamping divergencia [-10,10] + gradient clipping global</div>
             </div>
 
+            <!-- Fase II -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name">Fase II — Entrenamiento masivo</span>
+                    <span class="phase-name">Fase II -- Entrenamiento masivo</span>
                     <span class="badge b-done">Completada</span>
                 </div>
-                <div class="task done">
-                    <div class="chk checked"></div>9,784 train / 1,223 val procesados
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>500 épocas — val loss: 0.6266
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>12 checkpoints guardados
-                </div>
+                <div class="task done"><div class="chk checked"></div>CoREMOF procesado: 9,784 train / 1,223 val</div>
+                <div class="task done"><div class="chk checked"></div>500 epocas en 8 cores Xeon -- val loss: 0.6266</div>
+                <div class="task done"><div class="chk checked"></div>12 checkpoints (cada 50 ep + best + final)</div>
             </div>
 
+            <!-- Fase III -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name"><span class="pulse"></span>Fase III — Descubrimiento y Caracterización</span>
+                    <span class="phase-name"><span class="pulse"></span>Fase III -- Descubrimiento y caracterizacion</span>
                     <span class="badge b-active">En curso</span>
                 </div>
-                <div class="task done">
-                    <div class="chk checked"></div>20 candidatos MOF generados (RK4, 100 steps)
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>run_porosity_analysis.py con parsers Zeo++
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>Motor GCMC validado — loading 3.27 mg/g CO2
-                </div>
-                <div class="task active">
-                    <div class="chk checked"></div>Zeo++ compilado en Linux — Di=11.3Å, Df=3.75Å
-                    <span class="new-tag">resuelto hoy</span>
-                </div>
-                <div class="task active">
-                    <div class="chk inprog"></div>Re-procesamiento CoREMOF con 9 workers (~13%)
-                </div>
-                <div class="task">
-                    <div class="chk"></div>Screening masivo CO2/H2 — porosity + GCMC
-                </div>
-                <div class="task">
-                    <div class="chk"></div>Ranking final summary_report.csv
-                </div>
+                <div class="task done"><div class="chk checked"></div>20 candidatos MOF generados (RK4, 100 steps)</div>
+                <div class="task done"><div class="chk checked"></div>Script run_porosity_analysis.py con parsers Zeo++</div>
+                <div class="task done"><div class="chk checked"></div>Motor GCMC Python puro integrado y validado</div>
+                <div class="task done"><div class="chk checked"></div>Batch relajacion LJ + screening GCMC (7 candidatos procesados)</div>
+                <div class="task"><div class="chk"></div>Instalar Zeo++ (network.exe) para porosidad<span class="block-tag">Bloqueante</span></div>
+                <div class="task"><div class="chk"></div>Screening masivo completo (20 candidatos)</div>
+                <div class="task"><div class="chk"></div>Ranking final combinado en summary_report.csv</div>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Candidato</th>
+                            <th>CO2 (mg/g)</th>
+                            <th>cm3 STP/cm3</th>
+                            <th>Henry</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>mof_014</td><td class="val-best">48.02</td><td class="val">27.10</td><td class="val">1.09e-05</td></tr>
+                        <tr><td>mof_001</td><td class="val">23.86</td><td class="val">13.47</td><td class="val">5.42e-06</td></tr>
+                        <tr><td>mof_006</td><td class="val">23.44</td><td class="val">13.23</td><td class="val">5.33e-06</td></tr>
+                        <tr><td>mof_002</td><td class="val">23.74</td><td class="val">13.40</td><td class="val">5.39e-06</td></tr>
+                        <tr><td>mof_004</td><td class="val">6.60</td><td class="val">3.72</td><td class="val">1.50e-06</td></tr>
+                        <tr><td>mof_007</td><td class="val">2.75</td><td class="val">1.55</td><td class="val">6.24e-07</td></tr>
+                        <tr><td>mof_003</td><td class="val">0.54</td><td class="val">0.30</td><td class="val">1.22e-07</td></tr>
+                    </tbody>
+                </table>
             </div>
 
+            <!-- Fase IV -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name">Fase IV — Validación DFT (xTB)</span>
+                    <span class="phase-name">Fase IV -- Validacion DFT (xTB)</span>
                     <span class="badge b-pending">Pendiente</span>
                 </div>
-                <div class="task">
-                    <div class="chk"></div>Instalar xtb-python / tblite
-                </div>
-                <div class="task">
-                    <div class="chk"></div>Relajación geométrica GFN2-xTB — TOP 10
-                </div>
-                <div class="task">
-                    <div class="chk"></div>Energías de adsorción de H2
-                </div>
+                <div class="task"><div class="chk"></div>Instalar tblite / xtb-python</div>
+                <div class="task"><div class="chk"></div>Relajacion geometrica GFN2-xTB del TOP 10</div>
+                <div class="task"><div class="chk"></div>Calculo E_ads(H2) y reporte final</div>
             </div>
 
+            <!-- Fase V -->
             <div class="phase">
                 <div class="phase-hdr">
-                    <span class="phase-name">Fase V — Visualización cinemática</span>
+                    <span class="phase-name">Fase V -- Visualizacion cinematica</span>
                     <span class="badge b-done">Completada</span>
                 </div>
-                <div class="task done">
-                    <div class="chk checked"></div>WyckoffGuidedRecorder + trayectoria .pt
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>export_cinematic_xyz.py T³ → cartesianas
-                </div>
-                <div class="task done">
-                    <div class="chk checked"></div>blender_animator.py con driver de material
-                </div>
-            </div>
-
-            <div class="phase">
-                <div class="phase-hdr">
-                    <span class="phase-name">Fase VI — Migración Linux + Optimización</span>
-                    <span class="badge b-active">En curso</span>
-                </div>
-                <div class="task active">
-                    <div class="chk checked"></div>WSL Ubuntu 22.04 — PyTorch + pymatgen + e3nn
-                    <span class="new-tag">hoy</span>
-                </div>
-                <div class="task active">
-                    <div class="chk checked"></div>Zeo++ compilado nativamente (voro++ manual)
-                    <span class="new-tag">hoy</span>
-                </div>
-                <div class="task active">
-                    <div class="chk checked"></div>RASPA2 instalado
-                    <span class="new-tag">hoy</span>
-                </div>
-                <div class="task active">
-                    <div class="chk inprog"></div>Re-procesamiento con VoronoiNN + 9 workers
-                </div>
-                <div class="task">
-                    <div class="chk"></div>Benchmark entrenamiento Linux vs Windows
-                </div>
-                <div class="task">
-                    <div class="chk"></div>Filtro SAscore + retrosíntesis (RDKit)
-                </div>
+                <div class="task done"><div class="chk checked"></div>WyckoffGuidedRecorder + tensor trayectoria .pt</div>
+                <div class="task done"><div class="chk checked"></div>export_cinematic_xyz.py (T^3 -> cartesianas)</div>
+                <div class="task done"><div class="chk checked"></div>blender_animator.py con driver de material</div>
             </div>
         </div>
     </main>
 
     <aside>
-        <div class="dm-card" style="position: sticky; top: 2rem;">
-            <p class="section-lbl">Métricas del modelo</p>
+        <div class="card" style="position: sticky; top: 2rem;">
+            <p class="section-lbl">Metricas del modelo</p>
             <div class="metric-grid">
                 <div class="metric-box">
                     <span class="metric-val">0.626</span>
@@ -562,55 +321,62 @@
                 </div>
                 <div class="metric-box">
                     <span class="metric-val">500</span>
-                    <span class="metric-lbl">Épocas</span>
+                    <span class="metric-lbl">Epocas</span>
                 </div>
                 <div class="metric-box">
                     <span class="metric-val">9.7k</span>
                     <span class="metric-lbl">Train Set</span>
                 </div>
                 <div class="metric-box">
-                    <span class="metric-val">100k</span>
+                    <span class="metric-val">~100k</span>
                     <span class="metric-lbl">Params</span>
                 </div>
                 <div class="metric-box">
-                    <span class="metric-val">3.27</span>
-                    <span class="metric-lbl">GCMC mg/g</span>
+                    <span class="metric-val">48.0</span>
+                    <span class="metric-lbl">Top GCMC mg/g</span>
                 </div>
                 <div class="metric-box">
-                    <span class="metric-val">3.75Å</span>
-                    <span class="metric-lbl">Df poro</span>
+                    <span class="metric-val">20</span>
+                    <span class="metric-lbl">Candidatos</span>
                 </div>
             </div>
 
-            <p class="section-lbl">Issues activos</p>
+            <p class="section-lbl">Estado de issues</p>
             <ul class="issues">
-                <li class="resolved"><b>Zeo++ bloqueante</b> — resuelto en Linux</li>
-                <li class="resolved"><b>6 workers lentos</b> — subido a 9 workers</li>
-                <li><b>NaN generador</b> — constrain coord pendiente</li>
-                <li><b>DFT ausente</b> — xTB a instalar Fase IV</li>
+                <li class="resolved"><b>Divergencia negativa</b> -- clamp [-10,10] aplicado</li>
+                <li class="resolved"><b>Bulk Modulus NaN</b> -- fallback |F/V| implementado</li>
+                <li class="mitigated"><b>Colapso volumen</b> -- mitigado con densidad adaptativa</li>
+                <li><b>Zeo++</b> -- network.exe no disponible en Windows</li>
+                <li><b>DFT ausente</b> -- tblite pendiente de instalacion</li>
             </ul>
 
-            <p class="section-lbl">Stack tecnológico</p>
+            <p class="section-lbl">Stack tecnologico</p>
             <div class="tag-wrap">
-                <span class="tag">CFM</span>
-                <span class="tag">SPD(3) Tensor</span>
+                <span class="tag">Flow Matching</span>
+                <span class="tag">SPD(3)</span>
                 <span class="tag">SE(3) e3nn</span>
                 <span class="tag">Sinkhorn OT</span>
                 <span class="tag">Virial</span>
                 <span class="tag">Hutchinson</span>
-                <span class="tag">Zeo++ 0.3</span>
+                <span class="tag">GCMC</span>
                 <span class="tag">RASPA2</span>
-                <span class="tag">RDKit</span>
+                <span class="tag">Lennard-Jones</span>
+                <span class="tag">pymatgen</span>
+                <span class="tag">ASE</span>
             </div>
 
-            <p class="section-lbl">Próximos pasos ejecutables</p>
+            <p class="section-lbl">Pipeline de ejecucion</p>
             <div class="steps-list">
-                <span>01</span> Esperar dataset (13% → 100%)<br>
-                <span>02</span> Ejecutar dataset splits limitados<br>
-                <span>03</span> The Big Run (Linux mode)<br>
-                <span>04</span> Mass Screening Zeo/GCMC<br>
-                <span>05</span> Setup xTB validation
+                <span>01</span> python src/unzip_mofs.py<br>
+                <span>02</span> python src/dataset.py --action all<br>
+                <span>03</span> python src/train_flow.py<br>
+                <span>04</span> python src/generate_final_batch.py<br>
+                <span>05</span> python src/run_batch_gcmc.py<br>
+                <span>06</span> python src/run_porosity_analysis.py<br>
+                <span>07</span> python src/validate_xtb.py
             </div>
+
+            <p class="footer">AtomForge -- Deep-Material v2.0 -- Actualizado 2026-04-16</p>
         </div>
     </aside>
 </div>
@@ -619,9 +385,7 @@
     setTimeout(() => {
         const tasks = document.querySelectorAll('.task');
         const done = document.querySelectorAll('.task.done').length;
-        const active = document.querySelectorAll('.task.active').length;
-        // Ponderar activas como 50% progreso
-        const pct = Math.round(((done + active * 0.5) / tasks.length) * 100);
+        const pct = Math.round((done / tasks.length) * 100);
         document.getElementById('prog').style.width = pct + '%';
     }, 300);
 </script>
