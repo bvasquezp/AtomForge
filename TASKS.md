@@ -31,7 +31,7 @@
 - [x] Script `run_porosity_analysis.py` con parsers para Zeo++
 - [x] Motor GCMC Python puro integrado y validado
 - [x] Relajacion LJ + screening GCMC de candidatos (batch)
-- [ ] **BLOQUEANTE:** Instalar Zeo++ (network.exe) para porosidad (Di, Df, ASA, AV)
+- [x] **RESUELTO:** Instalar Zeo++ y ejecutar analisis de porosidad (Di, Df, ASA, AV)
 - [ ] Ranking final combinado (GCMC + porosidad) en summary_report.csv
 
 ## Fase IV: Validacion DFT -- PENDIENTE
