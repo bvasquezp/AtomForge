@@ -1,4 +1,4 @@
-# Deep-Material v2 (Genesis-007 Project)
+# Deep-Material v2 (AtomForge Project)
 
 Generacion de Metal-Organic Frameworks (MOFs) mediante **Riemannian Flow Matching** con validacion **DFT** para almacenamiento de hidrogeno verde.
 

@@ -1,0 +1,31 @@
+
+    =======================================================
+    HOJA DE DATOS DE MATERIAL AVANZADO: AtomForge
+    =======================================================
+    FECHA: 2026-01-27 14:51
+    AUTOR: Benjamin (via Deep-Material AI)
+    
+    ------------------ PROPIEDADES FISICAS ----------------
+    DENSIDAD:          0.8182 g/cm3
+       (Ultraligero - Flota en agua)
+       
+    POROSIDAD (Vacio): 76.18%
+       (Alta capacidad de volumen libre)
+
+    ------------------ RENDIMIENTO ENERGETICO -------------
+    CAPACIDAD H2:      6.15 wt%
+       STATUS: SUPERIOR AL ESTANDAR DOE 2025 (5.5 wt%)
+       
+    AREA SUPERFICIAL:  3075.69 m2/g
+       (Equivalente a medio campo de futbol en 1 gramo)
+
+    ------------------ CONCLUSIONES -----------------------
+    El material candidato 'AtomForge' demuestra una topologia
+    estable tras el proceso de zurcido (stitching). Su alta
+    area superficial lo posiciona en el top 10% de materiales
+    sinteticos para almacenamiento de gases limpios.
+    
+    RECOMENDACION: Proceder a sintesis experimental o
+    simulacion DFT avanzada.
+    =======================================================
+    
