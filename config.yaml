@@ -1,0 +1,77 @@
+# =============================================================================
+# Deep-Material v2: Configuracion Central
+# Generacion de MOFs con Flow Matching + Validacion DFT
+# =============================================================================
+
+# --- Proyecto ---
+project:
+  name: "Deep-Material-v2"
+  seed: 42
+  device: "cpu"        # Forzamos CPU para aprovechar el Xeon a tope y evitar la gráfica limitada
+
+# --- Rutas ---
+paths:
+  raw_cifs: "data/raw_cifs"
+  processed: "data/processed_v2"
+  num_workers: 9       # 6 hilos para pre-procesamiento (seguro para tus 16GB de RAM)
+  models: "models"
+  generated: "generated_crystals"
+  candidates: "top_candidates"
+  logs: "logs"
+  
+# --- Dataset ---
+data:
+  bond_strategy: "crystalnn"
+  distance_cutoff: 5.0
+  max_atoms: 500
+  min_atoms: 5
+  use_fractional_coords: true
+  use_edge_attr: true
+  split:
+    train: 0.80
+    val: 0.10
+    test: 0.10
+
+# --- Modelo ---
+model:
+  backbone: "schnet"
+  hidden_dim: 64       # Modelo ligero para que el CPU procese rápido
+  latent_dim: 32
+  num_layers: 3
+  num_atom_types: 100
+  cutoff: 5.0
+  flow:
+    sigma_min: 0.001
+    num_steps: 100
+    solver: "euler"
+
+# --- Entrenamiento ---
+training:
+  batch_size: 32
+  num_workers: 9
+  epochs: 300
+  lr: 0.0001
+  weight_decay: 0.000001
+  warmup_epochs: 10
+  gradient_clip: 1.0
+  mixed_precision: false
+
+# --- Generacion ---
+generation:
+  num_samples: 100
+  temperature: 1.0
+  num_steps: 100
+
+# --- Validacion DFT ---
+dft:
+  method: "gfn2-xtb"
+  max_iterations: 500
+  force_threshold: 0.05
+  energy_threshold: 1.0e-6
+
+# --- Logging ---
+logging:
+  tracker: "wandb"
+  project_name: "deep-material-v2"
+  log_every_n_steps: 10
+  save_best_only: true

@@ -9,7 +9,7 @@ ZIP_FILENAME = "CoREMOF2019_public_v2_20241119.zip"
 # Carpeta donde guardaremos los cristales limpios
 DEST_DIR = os.path.join("data", "raw_cifs")
 # Cantidad de materiales a extraer (para no saturar tu disco)
-LIMIT = 500
+LIMIT = 15000
 
 def main():
     # Verificar si el ZIP existe

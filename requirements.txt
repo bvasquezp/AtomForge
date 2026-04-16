@@ -1,0 +1,31 @@
+# Deep-Material v2: Dependencias
+# ================================
+# Core
+torch>=2.0.0
+pyyaml>=6.0
+numpy>=1.24.0
+
+# Cristalografia y Quimica
+pymatgen>=2024.1.1
+ase>=3.22.0
+
+# Grafos (instalar con la version correcta de CUDA/torch)
+# Ver: https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
+torch-geometric>=2.4.0
+
+# Visualizacion
+matplotlib>=3.7.0
+seaborn>=0.12.0
+networkx>=3.0
+
+# Utilidades
+scipy>=1.10.0
+tqdm>=4.65.0
+
+# Experiment tracking (elegir uno)
+wandb>=0.15.0
+# mlflow>=2.5.0
+
+# DFT Validacion (Phase 2)
+# tblite>=0.3.0
+# xtb-python>=22.1

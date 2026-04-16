@@ -1,29 +1,75 @@
-# Genesis-007: Material Avanzado para Almacenamiento de Hidrógeno
+# Deep-Material v2 (Genesis-007 Project)
 
-##  Resumen del Proyecto
-Este repositorio contiene el pipeline de descubrimiento y validación computacional para **Genesis-007**, un marco metal-orgánico (MOF) diseñado mediante inteligencia artificial para superar los objetivos del Departamento de Energía de EE.UU. (DOE) para el almacenamiento de hidrógeno vehicular.
+Generacion de Metal-Organic Frameworks (MOFs) mediante **Riemannian Flow Matching** con validacion **DFT** para almacenamiento de hidrogeno verde.
 
-##  Especificaciones Técnicas (Validado)
+## Arquitectura
 
-| Propiedad | Valor | Estándar DOE 2025 | Estado |
-| :--- | :--- | :--- | :--- |
-| **Capacidad Gravimétrica** | **6.15 wt%** | 5.5 wt% |  Superado |
-| **Área Superficial** | **3075 m²/g** | N/A | Excelente |
-| **Densidad Cristalina** | 0.81 g/cm³ | > 0.70 g/cm³ | Óptimo |
-| **Fracción de Vacío** | 76.18% | - | Alta Porosidad |
+```
+CIF (CoREMOF) -> Grafos Periodicos -> Flow Matching (SchNet backbone) -> Estructuras 3D -> Validacion DFT (xTB)
+```
 
-##  Composición Química
-* **Nodos Metálicos:** Clústeres de Zirconio ($Zr_6O_8$) para estabilidad térmica y química.
-* **Linkers:** Conectores basados en Cobre (Cu) con puentes orgánicos.
-* **Topología:** Estructura jerárquica con "zurcido" (stitching) computacional para garantizar integridad mecánica.
+El modelo genera conjuntamente:
+- **Tipos atomicos** (clasificacion categorica)
+- **Coordenadas fraccionales** (en toro T^3, periodicidad natural)
+- **Parametros de celda unitaria** (a, b, c, alpha, beta, gamma)
 
-##  Estructura del Repositorio
-* `src/`: Código fuente para generación, reparación y análisis.
-* `top_candidates/`: Archivos cristalográficos (.xyz) y reportes de simulación.
-* `Genesis_007_Datasheet.txt`: Reporte técnico detallado generado automáticamente.
+## Estructura del Proyecto
 
-##  Reproducción
-Para reproducir el análisis de capacidad:
+```
+Deep-Material/
+├── config.yaml              # Configuracion central
+├── requirements.txt         # Dependencias
+├── data/
+│   ├── raw_cifs/            # Archivos CIF originales (CoREMOF)
+│   └── processed_v2/        # Grafos periodicos (.pt)
+├── models/                  # Checkpoints del modelo
+├── src/
+│   ├── utils.py             # Utilidades compartidas
+│   ├── dataset.py           # Pipeline de datos con PBC
+│   ├── crystal_model.py     # CrystalFlowModel (SchNet + Flow Matching)
+│   ├── train_flow.py        # Entrenamiento Flow Matching
+│   └── generate_flow.py     # Generacion de nuevos MOFs
+├── results/                 # Resultados de la generacion y validacion GCMC
+└── top_candidates/          # Candidatos validados
+```
 
+## Uso Rapido
+
+### 1. Preprocesar datos
 ```bash
-python src/analyze_hydrogen.py
+python src/dataset.py --action all
+```
+
+### 2. Entrenar modelo
+```bash
+python src/train_flow.py
+```
+
+### 3. Generar nuevos MOFs
+```bash
+python src/generate_flow.py --checkpoint models/flow_best.pth --num_samples 10
+```
+
+## Exploracion y Validacion Masiva (v2)
+
+### 4. Orquestar Monte Carlo GCMC
+```bash
+python src/run_batch_gcmc.py 
+```
+
+### 5. Caracterizacion DFT - GFN2-xTB 
+```bash
+python src/validate_xtb.py
+```
+
+## Modelos de Referencia
+
+| Modelo | Venue | Innovacion |
+|---|---|---|
+| MOFFlow | ICLR 2025 | Riemannian FM en SE(3) para MOFs |
+| FlowMM | ICML 2024 | Riemannian FM para cristales |
+| CDVAE | ICLR 2022 | Diffusion model para cristales |
+
+## Licencia
+
+Proyecto academico / concurso de innovacion.

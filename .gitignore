@@ -1,0 +1,64 @@
+# Deep-Material v2
+# ==================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Entorno virtual
+venv/
+.venv/
+env/
+
+# Datos (demasiado grandes para Git)
+data/raw_cifs/
+data/processed/
+data/processed_v2/
+*.cif
+*.h5
+*.hdf5
+
+# Modelos (demasiado grandes para Git)
+models/*.pth
+models/*.onnx
+models/*.pt
+
+# Generados
+generated_crystals/
+top_candidates/
+
+# Datasets comprimidos
+*.zip
+*.tar.gz
+*.tar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+logs/
+wandb/
+mlruns/
+
+# Misc
+*.xyz
+*.png
+*.jpg
+*.csv

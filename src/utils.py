@@ -1,0 +1,357 @@
+"""
+Deep-Material v2: Utilidades Compartidas
+========================================
+Modulo central con funciones de I/O, constantes quimicas y helpers
+que antes estaban duplicados en multiples scripts.
+"""
+
+import os
+import yaml
+import torch
+import random
+import warnings
+import numpy as np
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Any
+
+
+# =============================================================================
+# Constantes Quimicas
+# =============================================================================
+
+# Radios de Van der Waals (Angstroms)
+VDW_RADII: Dict[str, float] = {
+    "H": 1.20, "He": 1.40, "Li": 1.82, "Be": 1.53, "B": 1.92,
+    "C": 1.70, "N": 1.55, "O": 1.52, "F": 1.47, "Ne": 1.54,
+    "Na": 2.27, "Mg": 1.73, "Al": 1.84, "Si": 2.10, "P": 1.80,
+    "S": 1.80, "Cl": 1.75, "K": 2.75, "Ca": 2.31, "Ti": 2.11,
+    "V": 2.07, "Cr": 2.06, "Mn": 2.05, "Fe": 2.04, "Co": 2.00,
+    "Ni": 1.97, "Cu": 1.96, "Zn": 2.01, "Zr": 2.18, "Mo": 2.17,
+    "Ag": 2.11, "Cd": 2.18, "In": 1.93, "Sn": 2.17,
+}
+
+# Masas atomicas (g/mol) - elementos comunes en MOFs
+ATOMIC_MASSES: Dict[str, float] = {
+    "H": 1.008, "C": 12.011, "N": 14.007, "O": 15.999, "F": 18.998,
+    "Si": 28.086, "P": 30.974, "S": 32.065, "Cl": 35.453,
+    "Ti": 47.867, "V": 50.942, "Cr": 51.996, "Mn": 54.938,
+    "Fe": 55.845, "Co": 58.933, "Ni": 58.693, "Cu": 63.546,
+    "Zn": 65.380, "Zr": 91.224, "Mo": 95.950, "Ag": 107.868,
+    "Cd": 112.411, "In": 114.818,
+}
+
+# Colores CPK para visualizacion
+CPK_COLORS: Dict[str, str] = {
+    "H": "#FFFFFF", "C": "#909090", "N": "#3050F8", "O": "#FF0D0D",
+    "F": "#90E050", "S": "#FFFF30", "Cl": "#1FF01F",
+    "Fe": "#E06633", "Co": "#F090A0", "Ni": "#50D050",
+    "Cu": "#C88033", "Zn": "#7D80B0", "Zr": "#94B0C0",
+}
+
+# Radios CPK para visualizacion (escala relativa)
+CPK_SIZES: Dict[str, int] = {
+    "H": 150, "C": 300, "N": 280, "O": 260, "F": 240,
+    "S": 350, "Cl": 340, "Fe": 400, "Co": 380, "Ni": 370,
+    "Cu": 380, "Zn": 390, "Zr": 500,
+}
+
+
+# =============================================================================
+# Configuracion
+# =============================================================================
+
+def get_project_root() -> Path:
+    """Retorna la raiz del proyecto (directorio que contiene config.yaml)."""
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        if (current / "config.yaml").exists():
+            return current
+        current = current.parent
+    raise FileNotFoundError("No se encontro config.yaml en ningun directorio padre")
+
+
+def load_config(config_path: Optional[str] = None) -> dict:
+    """Carga la configuracion del proyecto desde config.yaml."""
+    if config_path is None:
+        config_path = get_project_root() / "config.yaml"
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+    return config
+
+
+def resolve_paths(config: dict) -> dict:
+    """Resuelve todas las rutas relativas en la config a rutas absolutas."""
+    root = get_project_root()
+    paths = config.get("paths", {})
+    for key, value in paths.items():
+        if isinstance(value, str):
+            paths[key] = str(root / value)
+    return config
+
+
+# =============================================================================
+# Reproducibilidad
+# =============================================================================
+
+def set_seed(seed: int = 42) -> None:
+    """Fija semillas para reproducibilidad total."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
+
+def get_device(preference: str = "auto") -> torch.device:
+    """Obtiene el dispositivo de computo."""
+    if preference == "auto":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device(preference)
+
+
+# =============================================================================
+# I/O de Cristales
+# =============================================================================
+
+def read_xyz(filepath: str) -> Tuple[List[str], np.ndarray]:
+    """
+    Lee un archivo XYZ y devuelve elementos y coordenadas.
+
+    Returns:
+        (elements, coords): Lista de simbolos atomicos y array (N, 3).
+    """
+    atoms: List[str] = []
+    coords: List[List[float]] = []
+    with open(filepath, "r") as f:
+        lines = f.readlines()
+        for line in lines[2:]:
+            parts = line.split()
+            if len(parts) >= 4:
+                atoms.append(parts[0])
+                coords.append([float(parts[1]), float(parts[2]), float(parts[3])])
+    return atoms, np.array(coords)
+
+
+def write_xyz(
+    filepath: str,
+    atoms: List[str],
+    coords: np.ndarray,
+    comment: str = "Generated by Deep-Material v2"
+) -> None:
+    """Escribe un archivo XYZ estandar."""
+    with open(filepath, "w") as f:
+        f.write(f"{len(atoms)}\n")
+        f.write(f"{comment}\n")
+        for atom, (x, y, z) in zip(atoms, coords):
+            f.write(f"{atom:<2} {x:.6f} {y:.6f} {z:.6f}\n")
+
+
+def save_checkpoint(
+    model: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    epoch: int,
+    loss: float,
+    filepath: str,
+    extra: Optional[dict] = None
+) -> None:
+    """Guarda un checkpoint completo del modelo."""
+    checkpoint = {
+        "epoch": epoch,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "loss": loss,
+    }
+    if extra:
+        checkpoint.update(extra)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    torch.save(checkpoint, filepath)
+
+
+def load_checkpoint(
+    filepath: str,
+    model: torch.nn.Module,
+    optimizer: Optional[torch.optim.Optimizer] = None,
+    device: Optional[torch.device] = None
+) -> dict:
+    """Carga un checkpoint y restaura modelo/optimizer."""
+    checkpoint = torch.load(filepath, map_location=device, weights_only=False)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    if optimizer and "optimizer_state_dict" in checkpoint:
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+    return checkpoint
+
+
+# =============================================================================
+# Quimica
+# =============================================================================
+
+def get_vdw_radius(element: str) -> float:
+    """Retorna el radio VdW de un elemento. Default: 1.70 A."""
+    return VDW_RADII.get(element, 1.70)
+
+
+def get_atomic_mass(element: str) -> float:
+    """Retorna la masa atomica de un elemento. Default: 12.0 amu."""
+    return ATOMIC_MASSES.get(element, 12.0)
+
+
+def get_cpk_color(element: str) -> str:
+    """Retorna el color CPK de un elemento. Default: gris."""
+    return CPK_COLORS.get(element, "#808080")
+
+
+def get_cpk_size(element: str) -> int:
+    """Retorna el tamano CPK de un elemento. Default: 300."""
+    return CPK_SIZES.get(element, 300)
+
+
+# =============================================================================
+# Metricas de Cristales
+# =============================================================================
+
+def calculate_density(
+    elements: List[str],
+    volume_angstrom3: float
+) -> float:
+    """
+    Calcula densidad en g/cm3.
+    Conversion: 1 amu/A^3 = 1.66054 g/cm^3
+    """
+    total_mass_amu = sum(get_atomic_mass(el) for el in elements)
+    return (total_mass_amu / volume_angstrom3) * 1.66054
+
+
+def calculate_formula(elements: List[str]) -> Dict[str, int]:
+    """Calcula la formula empirica a partir de una lista de elementos."""
+    formula: Dict[str, int] = {}
+    for el in elements:
+        formula[el] = formula.get(el, 0) + 1
+    return dict(sorted(formula.items()))
+
+
+def formula_to_string(formula: Dict[str, int]) -> str:
+    """Convierte un dict de formula a string legible, ej: 'C12 Cu4 O8 Zr2'."""
+    return " ".join(f"{el}{count}" for el, count in sorted(formula.items()))
+
+
+# =============================================================================
+# Termodinamica Estadistica y Geometria Diferencial (Deep-Material v2)
+# =============================================================================
+
+class LogEuclideanExp(torch.autograd.Function):
+    """
+    Difeomorfismo Log-Euclidiano para el espacio de matrices SPD(3).
+    Mapea A (simetrica 3x3) -> L (definida positiva SPD 3x3) via la exponencial matricial.
+    Propaga los gradientes con la matriz de diferencias de Daleckii-Krein,
+    regularizando las singularidades isotropicas (celdas cubicas ej. lambda_i = lambda_j) 
+    mediante una expansion de Taylor de segundo orden.
+    """
+    @staticmethod
+    def forward(ctx, A: torch.Tensor) -> torch.Tensor:
+        # A: (..., 3, 3) matrices simetricas reales
+        # 1. Estabilizacion numerica: Asegurar simetria y limpiar NaNs/Infs de la EDO
+        A = torch.nan_to_num(A, nan=0.0, posinf=10.0, neginf=-10.0)
+        A = (A + A.transpose(-2, -1)) / 2.0
+        
+        # Jitter para estabilidad de convergencia en matrices casi singulares o degeneradas
+        eps = 1e-7
+        eye = torch.eye(3, device=A.device, dtype=A.dtype).expand_as(A)
+        A_stable = A + eps * eye
+        
+        # 2. Diagonalizacion ortogonal: A = U * diag(eigvals) * U^T
+        try:
+            eigvals, U = torch.linalg.eigh(A_stable, UPLO='U')
+        except torch._C._LinAlgError:
+            # Fallback 1: Jitter mas agresivo para matrices muy mal condicionadas
+            try:
+                A_stable = A + 1e-4 * eye
+                eigvals, U = torch.linalg.eigh(A_stable, UPLO='U')
+            except torch._C._LinAlgError:
+                # Fallback 2: Perturbacion aleatoria para romper degeneraciones exactas
+                try:
+                    noise = torch.randn_like(A) * 1e-5
+                    A_stable = A + 1e-3 * eye + (noise + noise.transpose(-1, -2))
+                    eigvals, U = torch.linalg.eigh(A_stable, UPLO='U')
+                except torch._C._LinAlgError:
+                    # Fallback Final (ULTIMA RATIO): Forzar diagonalizacion por identidad 
+                    # Esto evita que la generacion CRASHÉE, a costa de perder anisotropia momentanea
+                    warnings.warn("LinAlg Critico: Usando aproximacion diagonal para evitar crash.")
+                    eigvals = torch.diagonal(A, dim1=-2, dim2=-1)
+                    U = torch.eye(3, device=A.device, dtype=A.dtype).expand_as(A)
+        
+        exp_eigvals = torch.exp(eigvals)
+        # exp(A) = U * diag(exp(eigvals)) * U^T
+        L = U @ torch.diag_embed(exp_eigvals) @ U.transpose(-2, -1)
+        
+        ctx.save_for_backward(eigvals, U, exp_eigvals)
+        return L
+
+    @staticmethod
+    def backward(ctx, grad_L: torch.Tensor) -> torch.Tensor:
+        eigvals, U, exp_eigvals = ctx.saved_tensors
+        
+        # Proyectamos grad_L al subespacio de los autovectores ortogonales
+        U_T = U.transpose(-2, -1)
+        grad_L_proj = U_T @ grad_L @ U
+        
+        # Matriz limite de diferencias divididas espectrales G = (exp(Li) - exp(Lj))/(Li - Lj)
+        eigvals_i = eigvals.unsqueeze(-1)  # (..., 3, 1)
+        eigvals_j = eigvals.unsqueeze(-2)  # (..., 1, 3)
+        diff = eigvals_i - eigvals_j
+        
+        exp_i = exp_eigvals.unsqueeze(-1)
+        exp_j = exp_eigvals.unsqueeze(-2)
+        
+        # Solucion exacta (tiene inestabilidad division por cero)
+        G_exact = (exp_i - exp_j) / diff
+        
+        # Expansion de Taylor de orden 2 alrededor de diff = 0
+        # exp(y)*(exp(x-y) - 1) / (x-y) = exp(y)*(1 + (x-y)/2 + (x-y)^2 / 6)
+        G_taylor = exp_j * (1.0 + diff / 2.0 + (diff ** 2) / 6.0)
+        
+        # Conmutador regulador (Crossover a epsilon ~ 1e-5)
+        eps = 1e-5
+        mask = torch.abs(diff) < eps
+        G = torch.where(mask, G_taylor, G_exact)
+        
+        # Producto de Hadamard \odot proyectado
+        grad_A_proj = G * grad_L_proj
+        
+        # Proyeccion inversa al sistema coordenado real del Tensor de Torsion / Virial
+        grad_A = U @ grad_A_proj @ U_T
+        return grad_A
+
+
+def get_mic_distance(x_i: torch.Tensor, x_j: torch.Tensor, lattice: torch.Tensor) -> torch.Tensor:
+    """
+    Calcula las distancias interatomicas topologicas bajo la Convencion de Imagen Minima (MIC) 
+    para la variedad periodica compacta (Toroide T^3).
+    
+    Args:
+        x_i: Coordenadas fraccionales origen (..., 3)
+        x_j: Coordenadas fraccionales destino (..., 3)
+        lattice: Matriz de red cristalina L (..., 3, 3) 
+                 donde las filas son vectores a, b, c orientados.
+    Returns:
+        dist: Distancia Cartesiana euclidiana (..., 1)
+    """
+    # 1. Diferencia fraccional topologica pura dx = x_i - x_j
+    dx_frac = x_i - x_j
+    
+    # 2. Envoltura de Imagen Minima en Toroide (Cuidado con el wrap-around periodico)
+    dx_mic_frac = (dx_frac + 0.5) % 1.0 - 0.5
+    
+    # 3. Difeomorfismo Local del T^3 al espacio Tangente R^3 (Euclidiano real metrico)
+    if lattice.dim() == 2:
+        # L global
+        dx_cart = dx_mic_frac @ lattice
+    else:
+        # Diferencial Batch: (N, 1, 3) @ (N, 3, 3) -> (N, 1, 3) -> (N, 3)
+        dx_cart = torch.bmm(dx_mic_frac.unsqueeze(-2), lattice).squeeze(-2)
+        
+    # 4. Metrica Riemanniana local inducida
+    dist = torch.norm(dx_cart, dim=-1, keepdim=True)
+    
+    return dist
