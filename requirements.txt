@@ -8,6 +8,7 @@ numpy>=1.24.0
 # Cristalografia y Quimica
 pymatgen>=2024.1.1
 ase>=3.22.0
+rdkit>=2023.3.1
 
 # Grafos (instalar con la version correcta de CUDA/torch)
 # Ver: https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
